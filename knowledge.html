@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knowledge Sharing</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body onload="initKnowledgePage(); loadTheme(); loadNotif();">
+
+<div class="topbar">
+    <div class="left-side">
+        <div class="profile">
+            <img src="images/profile.png" class="avatar" alt="User">
+            <div class="user-info">
+                <div id="username"></div>
+                <div id="role"></div>
+            </div>
+        </div>
+        <div class="notif" onclick="go('notifications.html')">🔔 <span id="notifCount">0</span></div>
+    </div>
+
+    <div class="center-logo">
+        <img src="images/nu_logo 2.png" class="logo" alt="Logo">
+    </div>
+
+    <div class="right-side">
+        <button class="logout-btn" type="button" onclick="logout()">🚪 Logout</button>
+    </div>
+</div>
+
+<div class="container">
+    <h2>🤝 Knowledge Sharing</h2>
+
+    <div class="box">
+        <input type="text" id="title" placeholder="Share notes or subject name">
+        <input type="file" id="fileInput">
+        <button type="button" onclick="addKnowledgeItem()">Share</button>
+    </div>
+
+    <div id="list"></div>
+</div>
+
+<div class="bottom-nav">
+    <a href="index.html">🏠<span>Home</span></a>
+    <a href="needhelp.html">📚<span>Help</span></a>
+    <a href="NU-Share.html">🎒<span>Items</span></a>
+    <a href="communities.html">💬<span>Chat</span></a>
+    <a href="profile.html">👤<span>Profile</span></a>
+</div>
+
+<script src="script.js"></script>
+<script>
+let fileData = "";
+let fileName = "";
+
+function initKnowledgePage() {
+    let user = requireUser();
+    if (!user) return;
+
+    document.getElementById("username").innerText = user.name;
+    document.getElementById("role").innerText = user.role;
+
+    document.getElementById("fileInput").addEventListener("change", function(e) {
+        let file = e.target.files[0];
+        if (!file) return;
+
+        fileName = file.name;
+
+        let reader = new FileReader();
+        reader.onload = function() {
+            fileData = reader.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    displayKnowledgeItems();
+}
+
+function addKnowledgeItem() {
+    let title = document.getElementById("title").value.trim();
+
+    if (title === "" || !fileData) {
+        alert("Please enter title and choose a file!");
+        return;
+    }
+
+    let user = getCurrentUser();
+    let items = JSON.parse(localStorage.getItem("knowledge")) || [];
+
+    items.unshift({
+        title: title,
+        file: fileData,
+        name: fileName,
+        user: user.name,
+        time: new Date().toLocaleString()
+    });
+
+    localStorage.setItem("knowledge", JSON.stringify(items));
+    addNotification("New knowledge file shared");
+    document.getElementById("title").value = "";
+    document.getElementById("fileInput").value = "";
+    fileData = "";
+    fileName = "";
+    displayKnowledgeItems();
+}
+
+function displayKnowledgeItems() {
+    let items = JSON.parse(localStorage.getItem("knowledge")) || [];
+    let user = getCurrentUser();
+    let list = document.getElementById("list");
+
+    list.innerHTML = "";
+
+    if (items.length === 0) {
+        list.innerHTML = `<div class="empty-msg">No shared files yet.</div>`;
+        return;
+    }
+
+    items.forEach(function(item, i) {
+        list.innerHTML += `
+            <div class="knowledge-item">
+                <div><b>📚 ${item.title}</b></div>
+                <div class="meta">
+                    👤 ${item.user}<br>
+                    🕒 ${item.time}<br>
+                    📄 ${item.name}
+                </div>
+                <a class="file-link" href="${item.file}" download="${item.name}">📂 Download File</a>
+                ${(item.user === user.name || user.role === "admin") ? `<div class="actions"><button type="button" class="delete-btn" onclick="deleteKnowledgeFile(${i})">Delete</button></div>` : ""}
+            </div>
+        `;
+    });
+}
+
+function deleteKnowledgeFile(i) {
+    let items = JSON.parse(localStorage.getItem("knowledge")) || [];
+    let user = getCurrentUser();
+
+    if (items[i].user !== user.name && user.role !== "admin") {
+        alert("Access denied!");
+        return;
+    }
+
+    items.splice(i, 1);
+    localStorage.setItem("knowledge", JSON.stringify(items));
+    displayKnowledgeItems();
+}
+</script>
+</body>
+</html>

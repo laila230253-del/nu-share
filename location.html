@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NU Share - Location</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body onload="initLocationPage(); loadTheme();">
+
+<div class="topbar">
+    <div class="left-side">
+        <div class="profile">
+            <img src="images/profile.png" class="avatar" alt="User Avatar">
+            <div class="user-info">
+                <div id="username"></div>
+                <div id="role"></div>
+            </div>
+        </div>
+    </div>
+    <div class="center-logo">
+        <img src="images/nu_logo 2.png" class="logo" alt="NU Logo">
+    </div>
+    <div class="right-side">
+        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+</div>
+
+<div class="container">
+    <h2>📍 University Location</h2>
+
+    <div class="location-card">
+        <h3>🏫 National University</h3>
+        <iframe
+            src="https://www.google.com/maps?q=National%20University%20of%20Science%20and%20Technology%20Oman&output=embed"
+            style="width:100%; height:300px; border:none; border-radius:15px; margin-top:10px;">
+        </iframe>
+        <div class="actions">
+            <button onclick="openMap()">📍 Open in Google Maps</button>
+        </div>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <a href="index.html">🏠<span>Home</span></a>
+    <a href="needhelp.html">📚<span>Help</span></a>
+    <a href="NU-Share.html">🎒<span>Items</span></a>
+    <a href="communities.html">💬<span>Chat</span></a>
+    <a href="profile.html">👤<span>Profile</span></a>
+</div>
+
+<script src="script.js"></script>
+<script>
+function initLocationPage() {
+    let user = requireUser();
+    if (!user) return;
+    document.getElementById("username").innerText = user.name;
+    document.getElementById("role").innerText = user.role;
+}
+
+function openMap() {
+    window.open("https://www.google.com/maps?q=National+University+of+Science+and+Technology+Oman");
+}
+</script>
+</body>
+</html>

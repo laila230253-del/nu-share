@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Need Help</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body onload="initNeedHelp(); loadTheme(); loadNotif();">
+
+<div class="topbar">
+    <div class="left-side">
+        <div class="profile">
+            <img src="images/profile.png" class="avatar" alt="User">
+            <div class="user-info">
+                <div id="username"></div>
+                <div id="role"></div>
+            </div>
+        </div>
+        <div class="notif" onclick="go('notifications.html')">🔔 <span id="notifCount">0</span></div>
+    </div>
+
+    <div class="center-logo">
+        <img src="images/nu_logo 2.png" class="logo" alt="Logo">
+    </div>
+
+    <div class="right-side">
+        <button class="logout-btn" type="button" onclick="logout()">🚪 Logout</button>
+    </div>
+</div>
+
+<div class="container">
+    <h2>📚 Need Help</h2>
+
+    <div class="box">
+        <input id="postInput" placeholder="What do you need help with?">
+        <button type="button" onclick="addPost()">Post</button>
+    </div>
+
+    <div id="posts"></div>
+</div>
+
+<div class="bottom-nav">
+    <a href="index.html">🏠<span>Home</span></a>
+    <a href="needhelp.html">📚<span>Help</span></a>
+    <a href="NU-Share.html">🎒<span>Items</span></a>
+    <a href="communities.html">💬<span>Chat</span></a>
+    <a href="profile.html">👤<span>Profile</span></a>
+</div>
+
+<script src="script.js"></script>
+<script>
+function initNeedHelp() {
+    let user = requireUser();
+    if (!user) return;
+
+    document.getElementById("username").innerText = user.name;
+    document.getElementById("role").innerText = user.role;
+
+    displayPosts();
+}
+
+function addPost() {
+    let input = document.getElementById("postInput");
+    let text = input.value.trim();
+
+    if (text === "") {
+        alert("Please write something first!");
+        return;
+    }
+
+    let user = getCurrentUser();
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+
+    posts.unshift({
+        text: text,
+        likes: 0,
+        user: user.name,
+        time: new Date().toLocaleString(),
+        comments: []
+    });
+
+    localStorage.setItem("posts", JSON.stringify(posts));
+    addNotification("New help post added");
+    input.value = "";
+    displayPosts();
+}
+
+function displayPosts() {
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    let container = document.getElementById("posts");
+    let currentUser = getCurrentUser();
+
+    container.innerHTML = "";
+
+    if (posts.length === 0) {
+        container.innerHTML = `<div class="empty-msg">No posts yet.</div>`;
+        return;
+    }
+
+    posts.forEach(function(p, i) {
+        let commentsHTML = "";
+
+        p.comments.forEach(function(c) {
+            commentsHTML += `<div class="meta">💬 <b>${c.user}</b>: ${c.text}</div>`;
+        });
+
+        container.innerHTML += `
+            <div class="post">
+                <div><b>${p.user}</b></div>
+                <div class="time">${p.time}</div>
+                <p>${p.text}</p>
+                <div>❤️ ${p.likes}</div>
+
+                <div class="actions">
+                    <button type="button" class="like" onclick="likePost(${i})">Like</button>
+                    ${(p.user === currentUser.name || currentUser.role === "admin") ? `<button type="button" class="delete-btn" onclick="deletePost(${i})">Delete</button>` : ""}
+                </div>
+
+                <div class="actions">
+                    <input id="c-${i}" placeholder="Write comment">
+                    <button type="button" onclick="addComment(${i})">Send</button>
+                </div>
+
+                ${commentsHTML}
+            </div>
+        `;
+    });
+}
+
+function likePost(i) {
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    posts[i].likes++;
+    localStorage.setItem("posts", JSON.stringify(posts));
+    displayPosts();
+}
+
+function deletePost(i) {
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    let user = getCurrentUser();
+
+    if (posts[i].user !== user.name && user.role !== "admin") {
+        alert("Access denied!");
+        return;
+    }
+
+    posts.splice(i, 1);
+    localStorage.setItem("posts", JSON.stringify(posts));
+    displayPosts();
+}
+
+function addComment(i) {
+    let input = document.getElementById("c-" + i);
+    let text = input.value.trim();
+
+    if (text === "") return;
+
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    let user = getCurrentUser();
+
+    posts[i].comments.push({
+        text: text,
+        user: user.name
+    });
+
+    localStorage.setItem("posts", JSON.stringify(posts));
+    input.value = "";
+    displayPosts();
+}
+</script>
+</body>
+</html>

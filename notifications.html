@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body onload="initNotifications(); loadTheme();">
+
+<div class="topbar">
+    <div class="left-side">
+        <div class="profile">
+            <img src="images/profile.png" class="avatar" alt="User Avatar">
+            <div class="user-info">
+                <div id="username"></div>
+                <div id="role"></div>
+            </div>
+        </div>
+    </div>
+    <div class="center-logo">
+        <img src="images/nu_logo 2.png" class="logo" alt="NU Logo">
+    </div>
+    <div class="right-side">
+        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+</div>
+
+<div class="container">
+    <h2>🔔 Notifications</h2>
+    <div id="list"></div>
+</div>
+
+<div class="bottom-nav">
+    <a href="index.html">🏠<span>Home</span></a>
+    <a href="needhelp.html">📚<span>Help</span></a>
+    <a href="NU-Share.html">🎒<span>Items</span></a>
+    <a href="communities.html">💬<span>Chat</span></a>
+    <a href="profile.html">👤<span>Profile</span></a>
+</div>
+
+<script src="script.js"></script>
+<script>
+function initNotifications() {
+    let user = requireUser();
+    if (!user) return;
+
+    document.getElementById("username").innerText = user.name;
+    document.getElementById("role").innerText = user.role;
+
+    let noti = JSON.parse(localStorage.getItem("notifications")) || [];
+    let list = document.getElementById("list");
+    list.innerHTML = "";
+
+    if (noti.length === 0) {
+        list.innerHTML = `<div class="empty-msg">No notifications yet.</div>`;
+        return;
+    }
+
+    noti.forEach(function(n) {
+        list.innerHTML += `<div class="notify-card">${n}</div>`;
+    });
+}
+</script>
+</body>
+</html>

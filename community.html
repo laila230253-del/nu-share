@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Chat</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body onload="initCommunity(); loadTheme();">
+
+<div class="topbar">
+    <div class="left-side">
+        <div class="profile">
+            <img src="images/profile.png" class="avatar" alt="User Avatar">
+            <div class="user-info">
+                <div id="username"></div>
+                <div id="role"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="center-logo">
+        <img src="images/nu_logo 2.png" class="logo" alt="NU Logo">
+    </div>
+
+    <div class="right-side">
+        <button class="logout-btn" type="button" onclick="logout()">🚪 Logout</button>
+    </div>
+</div>
+
+<div class="container" style="padding-bottom:150px;">
+    <h2 id="title"></h2>
+    <div id="chat"></div>
+</div>
+
+<div class="chat-input-bar">
+    <input id="msg" placeholder="Write message...">
+    <button type="button" onclick="sendMessage()">Send</button>
+</div>
+
+<div class="bottom-nav">
+    <a href="index.html">🏠<span>Home</span></a>
+    <a href="needhelp.html">📚<span>Help</span></a>
+    <a href="NU-Share.html">🎒<span>Items</span></a>
+    <a href="communities.html">💬<span>Chat</span></a>
+    <a href="profile.html">👤<span>Profile</span></a>
+</div>
+
+<script src="script.js"></script>
+<script>
+let community = "";
+let replyIndex = null;
+
+function initCommunity() {
+    let user = requireUser();
+    if (!user) return;
+
+    community = localStorage.getItem("community");
+
+    if (!community) {
+        alert("No community selected!");
+        window.location.href = "communities.html";
+        return;
+    }
+
+    document.getElementById("username").innerText = user.name;
+    document.getElementById("role").innerText = user.role;
+    document.getElementById("title").innerText = community + " Community";
+
+    displayMessages();
+}
+
+function sendMessage() {
+    let msgInput = document.getElementById("msg");
+    let text = msgInput.value.trim();
+    if (text === "") return;
+
+    let user = getCurrentUser();
+    let msgs = JSON.parse(localStorage.getItem(community)) || [];
+
+    msgs.push({
+        user: user.name,
+        text: text,
+        time: new Date().toLocaleString(),
+        likes: 0,
+        reply: replyIndex !== null ? msgs[replyIndex].text : null
+    });
+
+    replyIndex = null;
+    localStorage.setItem(community, JSON.stringify(msgs));
+    msgInput.value = "";
+    displayMessages();
+}
+
+function displayMessages() {
+    let msgs = JSON.parse(localStorage.getItem(community)) || [];
+    let chat = document.getElementById("chat");
+    let user = getCurrentUser();
+
+    chat.innerHTML = "";
+
+    if (msgs.length === 0) {
+        chat.innerHTML = `<div class="empty-msg">No messages yet.</div>`;
+        return;
+    }
+
+    msgs.forEach(function(m, i) {
+        chat.innerHTML += `
+            <div class="msg">
+                ${m.reply ? `<div class="meta" style="color:yellow;">↪ Reply: ${m.reply}</div>` : ""}
+                <b>${m.user}</b>
+                <div class="meta">${m.time}</div>
+                <div>${m.text}</div>
+                <div>❤️ ${m.likes}</div>
+
+                <div class="actions">
+                    <button type="button" onclick="likeMessage(${i})">Like</button>
+                    <button type="button" onclick="replyMessage(${i})">Reply</button>
+                    ${(m.user === user.name || user.role === "admin") ? `<button type="button" onclick="editMessage(${i})">Edit</button>` : ""}
+                    ${(m.user === user.name || user.role === "admin") ? `<button type="button" class="delete-btn" onclick="deleteMessage(${i})">Delete</button>` : ""}
+                </div>
+            </div>
+        `;
+    });
+}
+
+function likeMessage(i) {
+    let msgs = JSON.parse(localStorage.getItem(community)) || [];
+    msgs[i].likes++;
+    localStorage.setItem(community, JSON.stringify(msgs));
+    displayMessages();
+}
+
+function deleteMessage(i) {
+    let msgs = JSON.parse(localStorage.getItem(community)) || [];
+    let user = getCurrentUser();
+
+    if (msgs[i].user !== user.name && user.role !== "admin") {
+        alert("Access denied!");
+        return;
+    }
+
+    msgs.splice(i, 1);
+    localStorage.setItem(community, JSON.stringify(msgs));
+    displayMessages();
+}
+
+function editMessage(i) {
+    let msgs = JSON.parse(localStorage.getItem(community)) || [];
+    let user = getCurrentUser();
+
+    if (msgs[i].user !== user.name && user.role !== "admin") {
+        alert("Access denied!");
+        return;
+    }
+
+    let newText = prompt("Edit message:", msgs[i].text);
+
+    if (newText && newText.trim() !== "") {
+        msgs[i].text = newText.trim();
+        localStorage.setItem(community, JSON.stringify(msgs));
+        displayMessages();
+    }
+}
+
+function replyMessage(i) {
+    let msgs = JSON.parse(localStorage.getItem(community)) || [];
+    replyIndex = i;
+    alert("Replying to: " + msgs[i].text);
+}
+</script>
+</body>
+</html>

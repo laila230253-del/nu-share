@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NU Share</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body onload="initSharePage(); loadTheme(); loadNotif();">
+
+<div class="topbar">
+    <div class="left-side">
+        <div class="profile">
+            <img src="images/profile.png" class="avatar" alt="User">
+            <div class="user-info">
+                <div id="username"></div>
+                <div id="role"></div>
+            </div>
+        </div>
+        <div class="notif" onclick="go('notifications.html')">🔔 <span id="notifCount">0</span></div>
+    </div>
+
+    <div class="center-logo">
+        <img src="images/nu_logo 2.png" class="logo" alt="NU Logo">
+    </div>
+
+    <div class="right-side">
+        <button class="logout-btn" type="button" onclick="logout()">🚪 Logout</button>
+    </div>
+</div>
+
+<div id="popup" onclick="closePopup()">
+    <img id="popupImg" alt="Popup">
+</div>
+
+<div class="container">
+    <h2>🎒 NU Share</h2>
+
+    <input id="search" placeholder="Search items..." onkeyup="displayItems()">
+
+    <div class="box">
+        <input id="title" placeholder="Item name">
+        <input id="category" placeholder="Category (Tech / Books / Tools)">
+        <input type="file" id="imgFile">
+        <img id="preview" alt="Preview">
+        <button type="button" onclick="addItem()">Share Item</button>
+    </div>
+
+    <div id="list" class="grid"></div>
+</div>
+
+<div class="bottom-nav">
+    <a href="index.html">🏠<span>Home</span></a>
+    <a href="needhelp.html">📚<span>Help</span></a>
+    <a href="NU-Share.html">🎒<span>Items</span></a>
+    <a href="communities.html">💬<span>Chat</span></a>
+    <a href="profile.html">👤<span>Profile</span></a>
+</div>
+
+<script src="script.js"></script>
+<script>
+let selectedImage = null;
+
+function initSharePage() {
+    let user = requireUser();
+    if (!user) return;
+
+    document.getElementById("username").innerText = user.name;
+    document.getElementById("role").innerText = user.role;
+
+    document.getElementById("imgFile").addEventListener("change", function(e) {
+        let file = e.target.files[0];
+        if (!file) return;
+
+        let reader = new FileReader();
+        reader.onload = function() {
+            selectedImage = reader.result;
+            document.getElementById("preview").src = selectedImage;
+            document.getElementById("preview").style.display = "block";
+        };
+        reader.readAsDataURL(file);
+    });
+
+    if (!localStorage.getItem("items")) {
+        localStorage.setItem("items", JSON.stringify([
+            {
+                title: "IT Book",
+                img: "https://images.unsplash.com/photo-1512820790803-83ca734da794",
+                category: "Books",
+                status: "available",
+                reservedBy: null,
+                user: "system"
+            },
+            {
+                title: "Calculator",
+                img: "https://images.unsplash.com/photo-1581091215367-59ab6b0d1f6d",
+                category: "Tools",
+                status: "reserved",
+                reservedBy: "Ali",
+                user: "system"
+            }
+        ]));
+    }
+
+    displayItems();
+}
+
+function addItem() {
+    let title = document.getElementById("title").value.trim();
+    let category = document.getElementById("category").value.trim();
+    let preview = document.getElementById("preview");
+    let imgFile = document.getElementById("imgFile");
+
+    if (title === "" || !selectedImage) {
+        alert("Please add item name and image!");
+        return;
+    }
+
+    let items = JSON.parse(localStorage.getItem("items")) || [];
+    let user = getCurrentUser();
+
+    items.unshift({
+        title: title,
+        img: selectedImage,
+        category: category || "General",
+        status: "available",
+        reservedBy: null,
+        user: user.name
+    });
+
+    localStorage.setItem("items", JSON.stringify(items));
+    addNotification("New item shared: " + title);
+
+    document.getElementById("title").value = "";
+    document.getElementById("category").value = "";
+    selectedImage = null;
+    preview.style.display = "none";
+    imgFile.value = "";
+
+    displayItems();
+}
+
+function displayItems() {
+    let items = JSON.parse(localStorage.getItem("items")) || [];
+    let keyword = document.getElementById("search").value.toLowerCase();
+    let list = document.getElementById("list");
+    let user = getCurrentUser();
+
+    list.innerHTML = "";
+
+    let filtered = items.filter(function(item) {
+        return item.title.toLowerCase().includes(keyword);
+    });
+
+    if (filtered.length === 0) {
+        list.innerHTML = `<div class="empty-msg">No items found.</div>`;
+        return;
+    }
+
+    filtered.forEach(function(item) {
+        let originalIndex = items.indexOf(item);
+
+        list.innerHTML += `
+            <div class="item">
+                <img src="${item.img}" class="item-img" onclick="openPopup('${item.img}')">
+                <h3>${item.title}</h3>
+                <div class="meta">🏷 ${item.category}</div>
+                <div class="${item.status}">${item.status === "available" ? "✅ Available" : "⏳ Reserved"}</div>
+                <div class="actions">
+                    ${item.status === "available"
+                        ? `<button type="button" class="reserve" onclick="reserveItem(${originalIndex})">Reserve</button>`
+                        : (item.reservedBy === user.name || user.role === "admin"
+                            ? `<button type="button" class="cancel" onclick="cancelItem(${originalIndex})">Cancel</button>`
+                            : "")
+                    }
+                    ${(item.user === user.name || user.role === "admin") ? `<button type="button" class="delete-btn" onclick="deleteItem(${originalIndex})">Delete</button>` : ""}
+                </div>
+            </div>
+        `;
+    });
+}
+
+function reserveItem(i) {
+    let items = JSON.parse(localStorage.getItem("items")) || [];
+    let user = getCurrentUser();
+
+    items[i].status = "reserved";
+    items[i].reservedBy = user.name;
+
+    localStorage.setItem("items", JSON.stringify(items));
+    displayItems();
+}
+
+function cancelItem(i) {
+    let items = JSON.parse(localStorage.getItem("items")) || [];
+    let user = getCurrentUser();
+
+    if (items[i].reservedBy !== user.name && user.role !== "admin") {
+        alert("Access denied!");
+        return;
+    }
+
+    items[i].status = "available";
+    items[i].reservedBy = null;
+
+    localStorage.setItem("items", JSON.stringify(items));
+    displayItems();
+}
+
+function deleteItem(i) {
+    let items = JSON.parse(localStorage.getItem("items")) || [];
+    let user = getCurrentUser();
+
+    if (items[i].user !== user.name && user.role !== "admin") {
+        alert("Access denied!");
+        return;
+    }
+
+    items.splice(i, 1);
+    localStorage.setItem("items", JSON.stringify(items));
+    displayItems();
+}
+
+function openPopup(src) {
+    document.getElementById("popupImg").src = src;
+    document.getElementById("popup").style.display = "flex";
+}
+
+function closePopup() {
+    document.getElementById("popup").style.display = "none";
+}
+</script>
+</body>
+</html>

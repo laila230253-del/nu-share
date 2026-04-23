@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NU Share Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="NU Share">
+<link rel="apple-touch-icon" href="images/icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body onload="initUser(); checkAdmin(); loadTheme(); loadNotif();">
+
+<div class="topbar">
+    <div class="left-side">
+        <div class="profile">
+            <img src="images/profile.png" class="avatar" alt="User">
+            <div class="user-info">
+                <div id="username"></div>
+                <div id="role"></div>
+            </div>
+        </div>
+        <div class="notif" onclick="go('notifications.html')">🔔 <span id="notifCount">0</span></div>
+    </div>
+
+    <div class="center-logo">
+        <img src="images/nu_logo 2.png" class="logo" alt="NU Logo">
+    </div>
+
+    <div class="right-side">
+        <button class="dark-btn" type="button" onclick="toggleDarkMode()">🌙</button>
+        <button class="logout-btn" type="button" onclick="logout()">🚪 Logout</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="title-box">
+    <img src="images/icon.png" class="title-logo" alt="Logo">
+    <h1>NU Share</h1>
+</div>
+    <div class="small">Welcome to Student Platform</div>
+
+    <div class="card" onclick="openPage('NU-Share.html')">🎒 NU Share</div>
+    <div class="card" onclick="openPage('announcements.html')">📢 Announcements</div>
+    <div class="card" onclick="openPage('communities.html')">💬 Communities</div>
+    <div class="card" onclick="openPage('needhelp.html')">📚 Need Help</div>
+    <div class="card" onclick="openPage('knowledge.html')">📘 Knowledge</div>
+    <div class="card" onclick="openPage('location.html')">📍 Location</div>
+    <div class="card" onclick="openPage('seniors.html')">🎓 Senior Students Advice</div>
+    
+
+    <div class="card" id="adminPanel" style="display:none;" onclick="openPage('admin.html')">
+        ⚙️ Admin Panel
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <a href="index.html">🏠<span>Home</span></a>
+    <a href="needhelp.html">📚<span>Help</span></a>
+    <a href="NU-Share.html">🎒<span>Items</span></a>
+    <a href="communities.html">💬<span>Chat</span></a>
+    <a href="profile.html">👤<span>Profile</span></a>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

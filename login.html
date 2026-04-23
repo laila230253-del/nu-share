@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NU-Share Login</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="NU Share">
+<link rel="apple-touch-icon" href="images/icon.png">
+<link rel="stylesheet" href="auth.css">
+</head>
+<body>
+
+<div class="container">
+    <img src="images/nu_logo 2.png" class="logo" alt="Logo">
+
+    <h1 class="title">nu-share</h1>
+    <p class="subtitle">Private Academic Collaboration Platform</p>
+
+    <div class="form-box">
+        <input type="email" id="email" placeholder="University Email">
+        <input type="password" id="password" placeholder="Password">
+
+        <input type="password" id="adminCode" placeholder="Admin Secret Code (admin only)">
+
+        <button type="button" onclick="login()">Login</button>
+    </div>
+
+    <p class="register">
+        Don't have an account?
+        <a href="register.html">Register</a>
+    </p>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
