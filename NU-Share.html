@@ -80,28 +80,108 @@ function initSharePage() {
         };
         reader.readAsDataURL(file);
     });
+localStorage.setItem("items", JSON.stringify([
 
-    if (!localStorage.getItem("items")) {
-        localStorage.setItem("items", JSON.stringify([
-            {
-                title: "IT Book",
-                img: "https://images.unsplash.com/photo-1512820790803-83ca734da794",
-                category: "Books",
-                status: "available",
-                reservedBy: null,
-                user: "system"
-            },
-            {
-                title: "Calculator",
-                img: "https://images.unsplash.com/photo-1581091215367-59ab6b0d1f6d",
-                category: "Tools",
-                status: "reserved",
-                reservedBy: "Ali",
-                user: "system"
-            }
-        ]));
+    {
+        title: "Calculator",
+        img: "images/calculator.jpg",
+        category: "Tools",
+        status: "available",
+        reservedBy: null,
+        user: "Ahmed"
+    },
+
+    {
+        title: "Engineering Tools",
+        img: "images/engineering-tools.jpg",
+        category: "Tools",
+        status: "available",
+        reservedBy: null,
+        user: "Sara"
+    },
+
+    {
+        title: "Study Files",
+        img: "images/files.jpg",
+        category: "Books",
+        status: "available",
+        reservedBy: null,
+        user: "Mohammed"
+    },
+
+    {
+        title: "Highlighter",
+        img: "images/highlighter.jpg",
+        category: "Stationery",
+        status: "available",
+        reservedBy: null,
+        user: "Fatima"
+    },
+
+    {
+        title: "Laptop Charger",
+        img: "images/laptop-charger.jpg",
+        category: "Electronics",
+        status: "available",
+        reservedBy: null,
+        user: "Ali"
+    },
+
+    {
+        title: "LG Laptop",
+        img: "images/lg-laptop.jpg",
+        category: "Electronics",
+        status: "available",
+        reservedBy: null,
+        user: "Khalid"
+    },
+
+    {
+        title: "HP Mouse",
+        img: "images/mouse-usb-X900-hp.jpg",
+        category: "Electronics",
+        status: "available",
+        reservedBy: null,
+        user: "Noor"
+    },
+
+    {
+        title: "Pens Set",
+        img: "images/pens.jpg",
+        category: "Stationery",
+        status: "available",
+        reservedBy: null,
+        user: "Aisha"
+    },
+
+    {
+        title: "Power Bank",
+        img: "images/power-bank.jpg",
+        category: "Electronics",
+        status: "available",
+        reservedBy: null,
+        user: "Hassan"
+    },
+
+    {
+        title: "Stapler",
+        img: "images/stapler.jpg",
+        category: "Stationery",
+        status: "available",
+        reservedBy: null,
+        user: "Zain"
+    },
+
+    {
+        title: "USB Flash Drive",
+        img: "images/usb-flash.jpg",
+        category: "Electronics",
+        status: "available",
+        reservedBy: null,
+        user: "Omar"
     }
 
+]));
     displayItems();
 }
 
